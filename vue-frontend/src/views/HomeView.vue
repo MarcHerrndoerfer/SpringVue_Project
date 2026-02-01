@@ -24,7 +24,7 @@
             <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
             <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
             <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-            <li class="nav-item"><a class="nav-link" href="#Login">Login</a></li>
+            <li class="nav-item"><router-link class="nav-link" to="/login">Login</router-link></li>
             <li class="nav-item ms-lg-2">
               <a class="btn btn-primary btn-sm px-3" href="#appointment">Request Appointment</a>
             </li>
