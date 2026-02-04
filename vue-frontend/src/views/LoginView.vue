@@ -72,7 +72,9 @@ const handleLogin = async () => {
   try {
     const user = await login(form.value)
     localStorage.setItem('authUser', JSON.stringify(user))
-    router.push('/')
+
+    const staffRoles = new Set(['DOCTOR', 'NURSE', 'ADMIN'])
+    router.push(staffRoles.has(user.role) ? '/staff' : '/')
   } catch (err: any) {
     error.value = err.message || 'An error occurred'
   } finally {

@@ -24,7 +24,13 @@
             <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
             <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
             <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-            <li class="nav-item"><router-link class="nav-link" to="/login">Login</router-link></li>
+            <li v-if="!authUser" class="nav-item"><router-link class="nav-link" to="/login">Login</router-link></li>
+            <li v-else class="nav-item d-flex align-items-center gap-2">
+              <span class="nav-link">Hi, {{ displayName }}</span>
+              <button class="btn btn-outline-light btn-sm" type="button" @click="handleLogout">
+                Log out
+              </button>
+            </li>
             <li class="nav-item ms-lg-2">
               <a class="btn btn-primary btn-sm px-3" href="#appointment">Request Appointment</a>
             </li>
@@ -270,7 +276,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue"
+import { logout, me, type MeResponse } from "../services/auth"
+
 const imgHospitalExterior =
   "https://images.unsplash.com/photo-1626315869436-d6781ba69d6e?auto=format&fit=crop&fm=jpg&q=60&w=3000"
 
@@ -279,6 +288,40 @@ const imgDoctorCall =
 
 const imgReception =
   "https://images.unsplash.com/photo-1634047411861-59c2eaa2ec9a?auto=format&fit=crop&fm=jpg&q=60&w=3000"
+
+const authUser = ref<MeResponse | null>(null)
+
+const displayName = computed(() => authUser.value?.name ?? "")
+
+const loadLocalUser = () => {
+  const raw = localStorage.getItem("authUser")
+  if (!raw) return
+  try {
+    authUser.value = JSON.parse(raw) as MeResponse
+  } catch {
+    authUser.value = null
+  }
+}
+
+onMounted(async () => {
+  loadLocalUser()
+  try {
+    const fresh = await me()
+    authUser.value = fresh
+    localStorage.setItem("authUser", JSON.stringify(fresh))
+  } catch {
+    // ignore if not logged in
+  }
+})
+
+const handleLogout = async () => {
+  try {
+    await logout()
+  } finally {
+    localStorage.removeItem("authUser")
+    authUser.value = null
+  }
+}
 
 function startAppointment() {
   alert("Placeholder. Here you would later open your form or routing.")
