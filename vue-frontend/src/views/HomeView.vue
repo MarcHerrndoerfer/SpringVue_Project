@@ -244,7 +244,7 @@
           <div class="col-12 col-lg-5">
             <div class="fw-semibold mb-2">St. Mary's Hospital</div>
             <div class="text-white-50 small">
-              Sample Street 10. 24534 Neumünster<br />
+              Sample Street 10. 12345 Example<br />
               Phone. 04321 123 456<br />
               Email. contact@st-mary.example
             </div>
