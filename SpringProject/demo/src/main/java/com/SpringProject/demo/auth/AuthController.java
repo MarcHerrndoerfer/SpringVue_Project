@@ -6,12 +6,15 @@ import com.SpringProject.demo.auth.dto.RegisterRequest;
 import com.SpringProject.demo.user.User;
 import com.SpringProject.demo.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -63,8 +66,12 @@ public class AuthController {
       List.of(new SimpleGrantedAuthority(user.getRole()))
     );
 
-    SecurityContextHolder.getContext().setAuthentication(auth);
-    request.getSession(true);
+    SecurityContext context = SecurityContextHolder.createEmptyContext();
+    context.setAuthentication(auth);
+    SecurityContextHolder.setContext(context);
+
+    HttpSession session = request.getSession(true);
+    session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
     return new MeResponse(user.getId(), user.getName(), user.getEmail(), user.getRole());
   }

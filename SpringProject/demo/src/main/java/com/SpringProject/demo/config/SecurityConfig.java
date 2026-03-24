@@ -24,6 +24,7 @@ public class SecurityConfig {
       .cors(Customizer.withDefaults())
       .authorizeHttpRequests(auth -> auth
         .requestMatchers("/api/auth/**").permitAll()
+        .requestMatchers("/api/departments/**").permitAll()
         .anyRequest().authenticated()
       )
       .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
