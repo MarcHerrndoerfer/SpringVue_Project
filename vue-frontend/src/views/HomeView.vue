@@ -280,9 +280,6 @@
 import { computed, onMounted, ref } from "vue"
 import { logout, me, type MeResponse } from "../services/auth"
 
-const imgHospitalExterior =
-  "https://images.unsplash.com/photo-1626315869436-d6781ba69d6e?auto=format&fit=crop&fm=jpg&q=60&w=3000"
-
 const imgDoctorCall =
   "https://images.unsplash.com/photo-1758691461932-d0aa0ebf6b31?auto=format&fit=crop&fm=jpg&q=60&w=3000"
 

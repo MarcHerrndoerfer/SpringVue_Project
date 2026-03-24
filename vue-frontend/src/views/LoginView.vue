@@ -54,10 +54,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { login } from '../services/auth'
 
 const router = useRouter()
+const route = useRoute()
 const form = ref({
   email: '',
   password: ''
@@ -74,7 +75,9 @@ const handleLogin = async () => {
     localStorage.setItem('authUser', JSON.stringify(user))
 
     const staffRoles = new Set(['DOCTOR', 'NURSE', 'ADMIN'])
-    router.push(staffRoles.has(user.role) ? '/staff' : '/')
+    const requestedRedirect = typeof route.query.redirect === 'string' ? route.query.redirect : null
+    const defaultTarget = staffRoles.has(user.role) ? '/staff' : '/'
+    router.replace(requestedRedirect ?? defaultTarget)
   } catch (err: any) {
     error.value = err.message || 'An error occurred'
   } finally {

@@ -3,6 +3,10 @@ import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import StaffDashboard from "../views/StaffDashboard.vue";
+import AvailableShiftsView from "../views/AvailableShiftsView.vue";
+import CreateShiftView from "../views/CreateShiftView.vue";
+import MyShiftsView from "../views/MyShiftsView.vue";
+import ManageAssignmentsView from "../views/ManageAssignmentsView.vue";
 import { me, type MeResponse } from "../services/auth";
 
 const router = createRouter({
@@ -18,6 +22,30 @@ const router = createRouter({
       name: "staff",
       component: StaffDashboard,
       meta: { requiresStaff: true }
+    },
+    {
+      path: "/shifts",
+      name: "shifts",
+      component: AvailableShiftsView,
+      meta: { requiresStaff: true }
+    },
+    {
+      path: "/shifts/new",
+      name: "create-shift",
+      component: CreateShiftView,
+      meta: { requiresStaff: true }
+    },
+    {
+      path: "/my-shifts",
+      name: "my-shifts",
+      component: MyShiftsView,
+      meta: { requiresStaff: true }
+    },
+    {
+      path: "/admin/assignments",
+      name: "admin-assignments",
+      component: ManageAssignmentsView,
+      meta: { requiresAdmin: true }
     },
     {
       path: "/login",
@@ -45,7 +73,7 @@ function readStoredUser(): MeResponse | null {
 }
 
 router.beforeEach(async (to) => {
-  if (!to.meta?.requiresStaff) return true;
+  if (!to.meta?.requiresStaff && !to.meta?.requiresAdmin) return true;
 
   let user = readStoredUser();
 
@@ -54,8 +82,16 @@ router.beforeEach(async (to) => {
       user = await me();
       localStorage.setItem("authUser", JSON.stringify(user));
     } catch {
+      localStorage.removeItem("authUser");
       return { path: "/login", query: { redirect: to.fullPath } };
     }
+  }
+
+  if (to.meta?.requiresAdmin) {
+    if (user.role !== "ADMIN") {
+      return { path: "/" };
+    }
+    return true;
   }
 
   if (!STAFF_ROLES.has(user.role)) {
