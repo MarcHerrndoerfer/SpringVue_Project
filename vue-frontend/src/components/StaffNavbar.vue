@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary border rounded px-3 py-2">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary border rounded px-3 py-2 staff-navbar">
     <div class="container-fluid px-0">
       <span class="navbar-brand fw-semibold">Staff Navigation</span>
 

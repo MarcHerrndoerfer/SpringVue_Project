@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-5">
+  <div class="container py-5 staff-page">
     <StaffNavbar class="mb-4" />
 
     <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
@@ -16,6 +16,44 @@
         <button class="btn btn-outline-secondary btn-sm" type="button" @click="handleLogout">
           Log out
         </button>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="card h-100">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted small">Open Shifts</div>
+              <div class="fs-4 fw-bold">{{ openShiftsCount }}</div>
+            </div>
+            <span class="kpi-icon">📅</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="card h-100">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted small">My Requests</div>
+              <div class="fs-4 fw-bold">{{ myRequestsCount }}</div>
+            </div>
+            <span class="kpi-icon">🧾</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="card h-100">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted small">Pending Approvals</div>
+              <div class="fs-4 fw-bold">{{ pendingApprovalsCount }}</div>
+            </div>
+            <span class="kpi-icon">⏳</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -99,7 +137,7 @@
 import { computed, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
 import { logout, me, type MeResponse } from "../services/auth"
-import { getAvailableShifts, type Shift } from "../services/shifts"
+import { getAvailableShifts, getMyAssignments, getPendingAssignments, type Shift } from "../services/shifts"
 import StaffNavbar from "../components/StaffNavbar.vue"
 
 const router = useRouter()
@@ -114,6 +152,10 @@ const wards = [
 const schedules = ref<Shift[]>([])
 const schedulesLoading = ref(false)
 const schedulesError = ref("")
+
+const openShiftsCount = ref(0)
+const myRequestsCount = ref(0)
+const pendingApprovalsCount = ref(0)
 
 const authUser = ref<MeResponse | null>(null)
 
@@ -140,6 +182,7 @@ onMounted(async () => {
   }
 
   await loadSchedules()
+  await loadKpis()
 })
 
 const loadSchedules = async () => {
@@ -151,6 +194,33 @@ const loadSchedules = async () => {
     schedulesError.value = err instanceof Error ? err.message : "Could not load shifts"
   } finally {
     schedulesLoading.value = false
+  }
+}
+
+const loadKpis = async () => {
+  try {
+    const shifts = await getAvailableShifts()
+    openShiftsCount.value = shifts.filter(shift => shift.assignedCount < shift.requiredStaff).length
+  } catch {
+    openShiftsCount.value = 0
+  }
+
+  try {
+    const myAssignments = await getMyAssignments()
+    myRequestsCount.value = myAssignments.length
+  } catch {
+    myRequestsCount.value = 0
+  }
+
+  if (authUser.value?.role === "ADMIN") {
+    try {
+      const pending = await getPendingAssignments()
+      pendingApprovalsCount.value = pending.length
+    } catch {
+      pendingApprovalsCount.value = 0
+    }
+  } else {
+    pendingApprovalsCount.value = 0
   }
 }
 
